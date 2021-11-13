@@ -1,0 +1,94 @@
+grammar org.ppgti.regexdsl.RegexDsl with org.eclipse.xtext.common.Terminals
+
+generate regexDsl "http://www.ppgti.org/regexdsl/RegexDsl"
+
+RegularExpressions:
+	regexs+=RegularExpression*
+;
+
+RegularExpression:
+	'regex' name=ID '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+;
+
+StructExpression:
+	'{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+;
+
+Expression:
+	Group | Set | Range | Quantifier | STRING
+;
+
+/*
+ * Group
+ */
+Group:
+	'group' StructExpression
+;
+
+/*
+ * Set
+ */
+Set:
+	'set' StructExpression
+;
+
+/*
+ * Quantifier
+ */
+Quantifier:
+	'quantifier' '(' ((attributes+=AttributesQuantifier) (',' attributes+=AttributesQuantifier)*)? ')'
+;
+
+AttributesQuantifier:
+	key=AttributesQuantifierKeys '=' value=Value
+;
+
+AttributesQuantifierKeys:
+	'size' | 'min' | 'max' | 'without_maximum'
+;
+
+/*
+ * Range
+ */
+Range:
+	'range' value=ValidRange
+;
+
+ValidRange:
+	RangeChar | RangeDigit
+;
+
+RangeChar:
+	CHAR CHAR
+;
+
+RangeDigit:
+	DIGIT DIGIT
+;
+
+/*
+ * Terminals
+ */
+terminal DIGIT: '0'..'9';
+terminal BOOLEAN: ('true'|'false');
+terminal CHAR: ('a'..'z'|'A'..'Z');
+
+enum Constants:
+	ANY = '.' |
+	DOT = '\\.' |
+	DIGIT = '\\d' |
+    WHITESPACE = '\\s' |
+    WORD_CHARS = '\\w' |
+    SLASH = '\\/.' |
+    NOT_DIGIT = '\\D' |
+    NOT_WHITESPACE = '\\S' |
+    NOT_WORD_CHARS = '\\W' |
+    ZERO_OR_ONE = '?' |
+    ZERO_OR_MULTIPLE = '*' |
+    ONE_OR_MULTIPLE = '+' |
+    HYPHEN = '\\-'
+;
+
+Value:
+	INT | STRING | ANY_OTHER | BOOLEAN
+;

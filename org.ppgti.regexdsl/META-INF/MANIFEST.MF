@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: org.ppgti.regexdsl
+Bundle-ManifestVersion: 2
+Bundle-Name: org.ppgti.regexdsl
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: org.ppgti.regexdsl; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: org.ppgti.regexdsl.regexDsl,
+ org.ppgti.regexdsl.parser.antlr.internal,
+ org.ppgti.regexdsl.parser.antlr,
+ org.ppgti.regexdsl.scoping,
+ org.ppgti.regexdsl,
+ org.ppgti.regexdsl.regexDsl.util,
+ org.ppgti.regexdsl.services,
+ org.ppgti.regexdsl.generator,
+ org.ppgti.regexdsl.validation,
+ org.ppgti.regexdsl.regexDsl.impl,
+ org.ppgti.regexdsl.serializer
+Import-Package: org.apache.log4j
