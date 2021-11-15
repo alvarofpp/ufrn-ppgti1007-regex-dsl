@@ -10,26 +10,26 @@ RegularExpression:
 	'regex' name=ID '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
 ;
 
-StructExpression:
-	'{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+Expression:
+	Group | Set | Range | Quantifier | RawExpression
 ;
 
-Expression:
-	Group | Set | Range | Quantifier | STRING
+RawExpression:
+	value=STRING
 ;
 
 /*
  * Group
  */
 Group:
-	'group' StructExpression
+	'group' '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
 ;
 
 /*
  * Set
  */
 Set:
-	'set' StructExpression
+	'set' '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
 ;
 
 /*
@@ -63,7 +63,7 @@ RangeChar:
 ;
 
 RangeDigit:
-	DIGIT DIGIT
+	(INT | DIGIT) (INT | DIGIT)
 ;
 
 /*
@@ -90,5 +90,5 @@ enum Constants:
 ;
 
 Value:
-	INT | STRING | ANY_OTHER | BOOLEAN
+	INT | DIGIT | STRING | ANY_OTHER | BOOLEAN
 ;
