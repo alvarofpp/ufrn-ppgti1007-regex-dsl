@@ -17,6 +17,7 @@ import org.ppgti.regexdsl.regexDsl.AttributesQuantifier
 import org.ppgti.regexdsl.regexDsl.Group
 import java.util.Map
 import java.util.HashMap
+import org.ppgti.regexdsl.regexDsl.Comment
 
 /**
  * Generates code from your model files on save.
@@ -70,6 +71,8 @@ class RegexDslGenerator extends AbstractGenerator {
     		return this.compileQuantifier(expression);
     	} else if (expression instanceof Range) {
     		return this.compileRange(expression);
+    	} else if (expression instanceof Comment) {
+    		return this.compileComment(expression);
     	} else if (expression instanceof RawExpression) {
     		var value = this.regexs.get(expression.value);
     		if (value != null) {
@@ -137,6 +140,10 @@ class RegexDslGenerator extends AbstractGenerator {
     
     private def compileRange(Range range) {
     	return range.value.replaceAll(' ', '-');
+    }
+    
+    private def compileComment(Comment comment) {
+    	return '(?#' + comment.value + ')';
     }
     
     private def boolean convertStringToBoolean(String value) {

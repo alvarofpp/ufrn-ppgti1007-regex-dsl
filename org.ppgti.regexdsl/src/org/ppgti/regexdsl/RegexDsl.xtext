@@ -15,7 +15,7 @@ ExpressionStruct:
 ;
 
 Expression:
-	Group | Set | Range | Quantifier | RawExpression
+	Group | Set | Range | Quantifier | Comment | RawExpression
 ;
 
 RawExpression:
@@ -69,6 +69,13 @@ RangeChar:
 RangeDigit:
 	(INT | DIGIT) (INT | DIGIT)
 ;
+
+/*
+ * Comment
+ */
+ Comment:
+ 	'comment' value=STRING
+ ;
 
 /*
  * Terminals
