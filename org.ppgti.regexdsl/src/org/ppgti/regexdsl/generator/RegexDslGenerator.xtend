@@ -18,6 +18,7 @@ import org.ppgti.regexdsl.regexDsl.Group
 import java.util.Map
 import java.util.HashMap
 import org.ppgti.regexdsl.regexDsl.Comment
+import org.ppgti.regexdsl.regexDsl.GroupBackreference
 
 /**
  * Generates code from your model files on save.
@@ -67,6 +68,8 @@ class RegexDslGenerator extends AbstractGenerator {
     		return this.compileSet(expression);
     	} else if (expression instanceof Group) {
     		return this.compileGroup(expression);
+    	} else if (expression instanceof GroupBackreference) {
+    		return this.compileBackreference(expression);
     	} else if (expression instanceof Quantifier) {
     		return this.compileQuantifier(expression);
     	} else if (expression instanceof Range) {
@@ -96,11 +99,24 @@ class RegexDslGenerator extends AbstractGenerator {
     private def compileGroup(Group group) {
     	var String result = '(';
     	
+    	if (group.non_capturing) {
+    		result += '?:';
+    	} else if (group.name != null) {
+    		result += '?P<' + group.name + '>';
+    	}
+    	
     	for (expression : group.struct.expressions) {
     		result += this.compileExpression(expression);
     	}
     	
     	return result + ')';
+    }
+    
+    private def compileBackreference(GroupBackreference backreference) {
+		if (this.isNumericInt(backreference.value)) {
+			return '\\' + backreference.value;
+		}
+		return '(?P=' + backreference.value + ')';
     }
     
     private def compileQuantifier(Quantifier quantifier) {

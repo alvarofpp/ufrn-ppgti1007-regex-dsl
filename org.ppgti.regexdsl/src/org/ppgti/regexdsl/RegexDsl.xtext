@@ -15,7 +15,7 @@ ExpressionStruct:
 ;
 
 Expression:
-	Group | Set | Range | Quantifier | Comment | RawExpression
+	Group | Set | Range | Quantifier | Comment | GroupBackreference | RawExpression
 ;
 
 RawExpression:
@@ -26,7 +26,14 @@ RawExpression:
  * Group
  */
 Group:
-	'group' struct=ExpressionStruct
+	'group' 
+    (non_capturing?='non_capturing')?
+    (name=ID)?
+    struct=ExpressionStruct
+;
+
+GroupBackreference:
+    'backreference' '(' value=STRING ')'
 ;
 
 /*
