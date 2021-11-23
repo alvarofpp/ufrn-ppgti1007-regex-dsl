@@ -7,7 +7,11 @@ RegularExpressions:
 ;
 
 RegularExpression:
-	'regex' name=ID '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+	'regex' name=ID struct=ExpressionStruct
+;
+
+ExpressionStruct:
+	'{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
 ;
 
 Expression:
@@ -15,21 +19,21 @@ Expression:
 ;
 
 RawExpression:
-	value=STRING
+	value=(ID | STRING)
 ;
 
 /*
  * Group
  */
 Group:
-	'group' '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+	'group' struct=ExpressionStruct
 ;
 
 /*
  * Set
  */
 Set:
-	'set' '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+	'set' struct=ExpressionStruct
 ;
 
 /*
