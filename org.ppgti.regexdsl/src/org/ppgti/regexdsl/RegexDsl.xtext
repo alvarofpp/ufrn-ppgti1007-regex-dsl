@@ -3,30 +3,37 @@ grammar org.ppgti.regexdsl.RegexDsl with org.eclipse.xtext.common.Terminals
 generate regexDsl "http://www.ppgti.org/regexdsl/RegexDsl"
 
 RegularExpressions:
-	regexs+=RegularExpression*
+    regexs+=RegularExpression*
 ;
 
 RegularExpression:
-	'regex' name=ID struct=ExpressionStruct
+    'regex' name=ID struct=ExpressionStruct
 ;
 
 ExpressionStruct:
-	'{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
+    '{' ((expressions+=Expression) (expressions+=Expression)*)? '}'
 ;
 
 Expression:
-	Group | Set | Range | Quantifier | Comment | GroupBackreference | RawExpression
+    Group |
+    Set |
+    Range |
+    Quantifier |
+    Comment |
+    GroupBackreference |
+    Anchor |
+    RawExpression
 ;
 
 RawExpression:
-	value=(ID | STRING)
+    value=(ID | STRING)
 ;
 
 /*
  * Group
  */
 Group:
-	'group' 
+    'group' 
     (non_capturing?='non_capturing')?
     (name=ID)?
     struct=ExpressionStruct
@@ -37,51 +44,58 @@ GroupBackreference:
 ;
 
 /*
+ * Anchor
+ */
+Anchor:
+    'anchor' (negate?='negate')? struct=ExpressionStruct
+;
+
+/*
  * Set
  */
 Set:
-	'set' struct=ExpressionStruct
+    'set' struct=ExpressionStruct
 ;
 
 /*
  * Quantifier
  */
 Quantifier:
-	'quantifier' '(' ((attributes+=AttributesQuantifier) (',' attributes+=AttributesQuantifier)*)? ')'
+    'quantifier' '(' ((attributes+=AttributesQuantifier) (',' attributes+=AttributesQuantifier)*)? ')'
 ;
 
 AttributesQuantifier:
-	key=AttributesQuantifierKeys '=' value=Value
+    key=AttributesQuantifierKeys '=' value=Value
 ;
 
 AttributesQuantifierKeys:
-	'size' | 'min' | 'max' | 'without_maximum'
+    'size' | 'min' | 'max' | 'without_maximum'
 ;
 
 /*
  * Range
  */
 Range:
-	'range' value=ValidRange
+    'range' value=ValidRange
 ;
 
 ValidRange:
-	RangeChar | RangeDigit
+    RangeChar | RangeDigit
 ;
 
 RangeChar:
-	CHAR CHAR
+    CHAR CHAR
 ;
 
 RangeDigit:
-	(INT | DIGIT) (INT | DIGIT)
+    (INT | DIGIT) (INT | DIGIT)
 ;
 
 /*
  * Comment
  */
  Comment:
- 	'comment' value=STRING
+     'comment' value=STRING
  ;
 
 /*
@@ -92,9 +106,9 @@ terminal BOOLEAN: ('true'|'false');
 terminal CHAR: ('a'..'z'|'A'..'Z');
 
 enum Constants:
-	ANY = '.' |
-	DOT = '\\.' |
-	DIGIT = '\\d' |
+    ANY = '.' |
+    DOT = '\\.' |
+    DIGIT = '\\d' |
     WHITESPACE = '\\s' |
     WORD_CHARS = '\\w' |
     SLASH = '\\/.' |
@@ -108,5 +122,5 @@ enum Constants:
 ;
 
 Value:
-	INT | DIGIT | STRING | ANY_OTHER | BOOLEAN
+    INT | DIGIT | STRING | ANY_OTHER | BOOLEAN
 ;

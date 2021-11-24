@@ -19,6 +19,7 @@ import java.util.Map
 import java.util.HashMap
 import org.ppgti.regexdsl.regexDsl.Comment
 import org.ppgti.regexdsl.regexDsl.GroupBackreference
+import org.ppgti.regexdsl.regexDsl.Anchor
 
 /**
  * Generates code from your model files on save.
@@ -70,6 +71,8 @@ class RegexDslGenerator extends AbstractGenerator {
     		return this.compileGroup(expression);
     	} else if (expression instanceof GroupBackreference) {
     		return this.compileBackreference(expression);
+    	} else if (expression instanceof Anchor) {
+    		return this.compileAnchor(expression);
     	} else if (expression instanceof Quantifier) {
     		return this.compileQuantifier(expression);
     	} else if (expression instanceof Range) {
@@ -84,6 +87,24 @@ class RegexDslGenerator extends AbstractGenerator {
     		
     		return expression.value;
     	}
+    }
+    
+    private def compileAnchor(Anchor anchor) {
+    	var String pre = '^';
+    	var String pos = '$';
+    	
+    	if (anchor.negate) {
+    		pre = '\\b';
+    		pos = '\\B';
+    	}
+    	
+    	var String result = '';
+    	
+    	for (expression : anchor.struct.expressions) {
+    		result += this.compileExpression(expression);
+    	}
+    	
+    	return pre + result + pos;
     }
     
     private def compileSet(Set set) {
