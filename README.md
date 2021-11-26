@@ -16,7 +16,10 @@ On this DSL you have:
 - Anchor: `anchor (negate)? { expressions }`;
 - Raw expressions: `'\\.'` | `'\\d'` | `'\\w'` | `...` .
 
-You can reuse a expression in other expression. You can find the grammar in [`org.ppgti.regexdsl/src/org/ppgti/regexdsl/RegexDsl.xtext`](org.ppgti.regexdsl/src/org/ppgti/regexdsl/RegexDsl.xtext).
+You can reuse a expression in other expression. Files:
+
+- Grammar: [`org.ppgti.regexdsl/src/org/ppgti/regexdsl/RegexDsl.xtext`](org.ppgti.regexdsl/src/org/ppgti/regexdsl/RegexDsl.xtext).
+- Generator: [`org.ppgti.regexdsl/src/org/ppgti/regexdsl/generator/RegexDslGenerator.xtend`](org.ppgti.regexdsl/src/org/ppgti/regexdsl/generator/RegexDslGenerator.xtend).
 
 ## Use
 
