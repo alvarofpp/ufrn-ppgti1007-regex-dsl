@@ -27,10 +27,10 @@ import org.ppgti.regexdsl.regexDsl.Anchor
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class RegexDslGenerator extends AbstractGenerator {
-	String ZERO_OR_ONE = '?';
-	String ZERO_OR_MULTIPLE = '*';
-	String ONE_OR_MULTIPLE = '+';
-	HashMap<String, String> regexs;
+    String ZERO_OR_ONE = '?';
+    String ZERO_OR_MULTIPLE = '*';
+    String ONE_OR_MULTIPLE = '+';
+    HashMap<String, String> regexs;
 
     override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
         this.seedRegexsMap(resource);
@@ -41,169 +41,169 @@ class RegexDslGenerator extends AbstractGenerator {
     }
     
     private def seedRegexsMap(Resource resource) {
-    	this.regexs = new HashMap<String, String>();
-    	var allNames = resource.allContents
+        this.regexs = new HashMap<String, String>();
+        var allNames = resource.allContents
                 .filter(RegularExpression)
                 .map[getNameFromRegularExpression];
         while (allNames.hasNext()) {
-    		regexs.put(allNames.next(), null);
-		}
+            regexs.put(allNames.next(), null);
+        }
     }
     
     private def getNameFromRegularExpression(RegularExpression regularExpression) {
-    	return regularExpression.name;
+        return regularExpression.name;
     }
     
     private def compile(RegularExpression regularExpression) {
-    	var String regex = '';
-    	for (expression : regularExpression.struct.expressions) {
-    		regex += this.compileExpression(expression);
-    	}
-    	this.regexs.put(regularExpression.name, regex);
-    	
-    	return regularExpression.name + ': ' + regex;
+        var String regex = '';
+        for (expression : regularExpression.struct.expressions) {
+            regex += this.compileExpression(expression);
+        }
+        this.regexs.put(regularExpression.name, regex);
+        
+        return regularExpression.name + ': ' + regex;
     }
     
     private def compileExpression(Expression expression) {
-    	if (expression instanceof Set) {
-    		return this.compileSet(expression);
-    	} else if (expression instanceof Group) {
-    		return this.compileGroup(expression);
-    	} else if (expression instanceof GroupBackreference) {
-    		return this.compileBackreference(expression);
-    	} else if (expression instanceof Anchor) {
-    		return this.compileAnchor(expression);
-    	} else if (expression instanceof Quantifier) {
-    		return this.compileQuantifier(expression);
-    	} else if (expression instanceof Range) {
-    		return this.compileRange(expression);
-    	} else if (expression instanceof Comment) {
-    		return this.compileComment(expression);
-    	} else if (expression instanceof RawExpression) {
-    		var value = this.regexs.get(expression.value);
-    		if (value != null) {
-    			return value
-    		}
-    		
-    		return expression.value;
-    	}
+        if (expression instanceof Set) {
+            return this.compileSet(expression);
+        } else if (expression instanceof Group) {
+            return this.compileGroup(expression);
+        } else if (expression instanceof GroupBackreference) {
+            return this.compileBackreference(expression);
+        } else if (expression instanceof Anchor) {
+            return this.compileAnchor(expression);
+        } else if (expression instanceof Quantifier) {
+            return this.compileQuantifier(expression);
+        } else if (expression instanceof Range) {
+            return this.compileRange(expression);
+        } else if (expression instanceof Comment) {
+            return this.compileComment(expression);
+        } else if (expression instanceof RawExpression) {
+            var value = this.regexs.get(expression.value);
+            if (value != null) {
+                return value
+            }
+            
+            return expression.value;
+        }
     }
     
     private def compileAnchor(Anchor anchor) {
-    	var String pre = '^';
-    	var String pos = '$';
-    	
-    	if (anchor.negate) {
-    		pre = '\\b';
-    		pos = '\\B';
-    	}
-    	
-    	var String result = '';
-    	
-    	for (expression : anchor.struct.expressions) {
-    		result += this.compileExpression(expression);
-    	}
-    	
-    	return pre + result + pos;
+        var String pre = '^';
+        var String pos = '$';
+        
+        if (anchor.negate) {
+            pre = '\\b';
+            pos = '\\B';
+        }
+        
+        var String result = '';
+        
+        for (expression : anchor.struct.expressions) {
+            result += this.compileExpression(expression);
+        }
+        
+        return pre + result + pos;
     }
     
     private def compileSet(Set set) {
-    	var String result = '[';
-    	
-    	for (expression : set.struct.expressions) {
-    		result += this.compileExpression(expression);
-    	}
-    	
-    	return result + ']';
+        var String result = '[';
+        
+        for (expression : set.struct.expressions) {
+            result += this.compileExpression(expression);
+        }
+        
+        return result + ']';
     }
     
     private def compileGroup(Group group) {
-    	var String result = '(';
-    	
-    	if (group.non_capturing) {
-    		result += '?:';
-    	} else if (group.name != null) {
-    		result += '?P<' + group.name + '>';
-    	}
-    	
-    	for (expression : group.struct.expressions) {
-    		result += this.compileExpression(expression);
-    	}
-    	
-    	return result + ')';
+        var String result = '(';
+        
+        if (group.non_capturing) {
+            result += '?:';
+        } else if (group.name != null) {
+            result += '?P<' + group.name + '>';
+        }
+        
+        for (expression : group.struct.expressions) {
+            result += this.compileExpression(expression);
+        }
+        
+        return result + ')';
     }
     
     private def compileBackreference(GroupBackreference backreference) {
-		if (this.isNumericInt(backreference.value)) {
-			return '\\' + backreference.value;
-		}
-		return '(?P=' + backreference.value + ')';
+        if (this.isNumericInt(backreference.value)) {
+            return '\\' + backreference.value;
+        }
+        return '(?P=' + backreference.value + ')';
     }
     
     private def compileQuantifier(Quantifier quantifier) {
-    	var String result = '';
-    	var attributes = newHashMap();
-    	
-    	for (attribute : quantifier.attributes) {
-    		attributes.put(attribute.key, attribute.value);
-    	}
-    	
-    	if (attributes.containsKey('size')) {
-    		result += attributes.get('size');
-    	} else if (attributes.containsKey('min') || attributes.containsKey('max')) {
-    		var boolean withoutMaximum = this.convertStringToBoolean(attributes.getOrDefault('without_maximum', '0'));
-    		var String min = attributes.getOrDefault('min', '0');
-    		var String max = attributes.getOrDefault('max', '0');
-    		
-    		if (min == '0' && max == '1') {
-    			return this.ZERO_OR_ONE;
-    		} else if (min == '0' && withoutMaximum) {
-    			return this.ZERO_OR_MULTIPLE;
-    		} else if (min == '1' && withoutMaximum) {
-    			return this.ONE_OR_MULTIPLE;
-    		}
-    		
-    		result = min;
-    		
-    		if (withoutMaximum == true) {
-    			result += ',';
-    		} else if (Integer::parseInt(max) > Integer::parseInt(min)) {
-    			result += ',' + max;
-    		}
-    	}
-    	
-    	return '{' + result + '}'
+        var String result = '';
+        var attributes = newHashMap();
+        
+        for (attribute : quantifier.attributes) {
+            attributes.put(attribute.key, attribute.value);
+        }
+        
+        if (attributes.containsKey('size')) {
+            result += attributes.get('size');
+        } else if (attributes.containsKey('min') || attributes.containsKey('max')) {
+            var boolean withoutMaximum = this.convertStringToBoolean(attributes.getOrDefault('without_maximum', '0'));
+            var String min = attributes.getOrDefault('min', '0');
+            var String max = attributes.getOrDefault('max', '0');
+            
+            if (min == '0' && max == '1') {
+                return this.ZERO_OR_ONE;
+            } else if (min == '0' && withoutMaximum) {
+                return this.ZERO_OR_MULTIPLE;
+            } else if (min == '1' && withoutMaximum) {
+                return this.ONE_OR_MULTIPLE;
+            }
+            
+            result = min;
+            
+            if (withoutMaximum == true) {
+                result += ',';
+            } else if (Integer::parseInt(max) > Integer::parseInt(min)) {
+                result += ',' + max;
+            }
+        }
+        
+        return '{' + result + '}'
     }
     
     private def compileRange(Range range) {
-    	return range.value.replaceAll(' ', '-');
+        return range.value.replaceAll(' ', '-');
     }
     
     private def compileComment(Comment comment) {
-    	return '(?#' + comment.value + ')';
+        return '(?#' + comment.value + ')';
     }
     
     private def boolean convertStringToBoolean(String value) {
-    	if (value.toLowerCase() == 'true') {
-    		return true;
-    	}
-    	
-    	if (this.isNumericInt(value) && Integer::parseInt(value) > 0) {
-    		return true;
-    	}
-    	
-    	return false;
+        if (value.toLowerCase() == 'true') {
+            return true;
+        }
+        
+        if (this.isNumericInt(value) && Integer::parseInt(value) > 0) {
+            return true;
+        }
+        
+        return false;
     }
     
     private def boolean isNumericInt(String value) {
-	    if (value == null) {
-	        return false;
-	    }
-	    try {
-	        var int valueInt = Integer::parseInt(value);
-	    } catch (NumberFormatException nfe) {
-	        return false;
-	    }
-	    return true;
-	}
+        if (value == null) {
+            return false;
+        }
+        try {
+            var int valueInt = Integer::parseInt(value);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 }
