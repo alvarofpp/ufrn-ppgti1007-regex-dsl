@@ -62,7 +62,7 @@ regex {name} {
 Input validation:
 ```
 validate {name} {
-    regex = {regex_name}
+    regex = {regex_name},
     inputs = [
         "input_one",
         "input_two",
@@ -113,7 +113,7 @@ regex all_digits {
 }
 
 validate zipcode_inputs {
-    regex = all_digits
+    regex = all_digits,
     inputs = [
         "abc",
         "11111"
@@ -131,7 +131,7 @@ regex all_digits {
 }
 
 validate zipcode_inputs {
-    regex = all_digits_wrong
+    regex = all_digits_wrong,
     inputs = [
         "abc",
         "11111"
@@ -323,7 +323,7 @@ regex zipcode {
 }
 
 validate zipcode_inputs {
-    regex = zipcode
+    regex = zipcode,
     inputs = [
         "abc",
         "11111-111",
@@ -374,7 +374,7 @@ regex cpf {
 }
 
 validate cpf_inputs {
-    regex = cpf
+    regex = cpf,
     inputs = [
         "abc",
         "111.111.111-11",
