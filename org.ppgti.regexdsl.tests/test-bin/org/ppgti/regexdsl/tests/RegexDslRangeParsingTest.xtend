@@ -28,32 +28,38 @@ class RegexDslRangeParsingTest {
     
     @Test
     def void digits() {
+        val result = '----- Regular Expressions -----'
+            + '\ndigits: 0-9';
+        
         '''
         regex digits {
             range 0 9
         }
-        '''.assertCompilesTo('''
-            digits: 0-9''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void lettersLower() {
+        val result = '----- Regular Expressions -----'
+            + '\nletters_lower: a-z';
+        
         '''
         regex letters_lower {
             range a z
         }
-        '''.assertCompilesTo('''
-            letters_lower: a-z''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void lettersUpper() {
+        val result = '----- Regular Expressions -----'
+            + '\nletters_upper: A-Z';
+        
         '''
         regex letters_upper {
             range A Z
         }
-        '''.assertCompilesTo('''
-            letters_upper: A-Z''')
+        '''.assertCompilesTo(result)
     }
     
     @Test

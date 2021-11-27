@@ -33,18 +33,24 @@ class RegexDslParsingTest {
     
     @Test
     def void setWithRange() {
+        val result = '----- Regular Expressions -----'
+            + '\nall_digits: [0-9]';
+        
         '''
         regex all_digits {
             set {
                 range 0 9
             }
         }
-        '''.assertCompilesTo('''
-            all_digits: [0-9]''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void reuseExpression() {
+        val result = '----- Regular Expressions -----'
+            + '\ndigits: 0-9'
+            + '\nall_digits: [0-9]';
+        
         '''
         regex digits {
             range 0 9
@@ -55,8 +61,6 @@ class RegexDslParsingTest {
                 digits
             }
         }
-        '''.assertCompilesTo('''
-            digits: 0-9
-            all_digits: [0-9]''')
+        '''.assertCompilesTo(result)
     }
 }

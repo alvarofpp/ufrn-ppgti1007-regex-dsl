@@ -28,62 +28,74 @@ class RegexDslQuantifierParsingTest {
     
     @Test
     def void zeroOrOne() {
+        val result = '----- Regular Expressions -----'
+            + '\nzero_or_one: ?';
+        
         '''
         regex zero_or_one {
             quantifier(min=0, max=1)
         }
-        '''.assertCompilesTo('''
-            zero_or_one: ?''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void zeroOrMultiple() {
+        val result = '----- Regular Expressions -----'
+            + '\nzero_or_multiple: *';
+        
         '''
         regex zero_or_multiple {
             quantifier(min=0, without_maximum=true)
         }
-        '''.assertCompilesTo('''
-            zero_or_multiple: *''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void OneOrMultiple() {
+        val result = '----- Regular Expressions -----'
+            + '\none_or_multiple: +';
+        
         '''
         regex one_or_multiple {
             quantifier(min=1, without_maximum=true)
         }
-        '''.assertCompilesTo('''
-            one_or_multiple: +''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void exactlyThree() {
+        val result = '----- Regular Expressions -----'
+            + '\nexactly_three: {3}';
+        
         '''
         regex exactly_three {
             quantifier(size=3)
         }
-        '''.assertCompilesTo('''
-            exactly_three: {3}''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void twoToFour() {
+        val result = '----- Regular Expressions -----'
+            + '\ntwo_to_four: {2,4}';
+        
         '''
         regex two_to_four {
             quantifier(min=2, max=4)
         }
-        '''.assertCompilesTo('''
-            two_to_four: {2,4}''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
     def void threeOrMore() {
+        val result = '----- Regular Expressions -----'
+            + '\nthree_or_more: {3,}';
+        
         '''
         regex three_or_more {
             quantifier(min=3, without_maximum=true)
         }
-        '''.assertCompilesTo('''
-            three_or_more: {3,}''')
+        '''.assertCompilesTo(result)
     }
     
     @Test
