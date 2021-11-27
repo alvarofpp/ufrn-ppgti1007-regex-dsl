@@ -147,11 +147,11 @@ class RegexDslGenerator extends AbstractGenerator {
         for (attribute : quantifier.attributes) {
             attributes.put(attribute.key, attribute.value);
         }
+        var boolean withoutMaximum = this.convertStringToBoolean(attributes.getOrDefault('without_maximum', '0'));
         
         if (attributes.containsKey('size')) {
             result += attributes.get('size');
         } else if (attributes.containsKey('min') || attributes.containsKey('max')) {
-            var boolean withoutMaximum = this.convertStringToBoolean(attributes.getOrDefault('without_maximum', '0'));
             var String min = attributes.getOrDefault('min', '0');
             var String max = attributes.getOrDefault('max', '0');
             
@@ -169,6 +169,10 @@ class RegexDslGenerator extends AbstractGenerator {
                 result += ',';
             } else if (Integer::parseInt(max) > Integer::parseInt(min)) {
                 result += ',' + max;
+            }
+        } else {
+            if (withoutMaximum) {
+                return this.ZERO_OR_MULTIPLE;
             }
         }
         
