@@ -20,6 +20,7 @@ import java.util.HashMap
 import org.ppgti.regexdsl.regexDsl.Comment
 import org.ppgti.regexdsl.regexDsl.GroupBackreference
 import org.ppgti.regexdsl.regexDsl.Anchor
+import org.ppgti.regexdsl.regexDsl.ValidateInput
 
 /**
  * Generates code from your model files on save.
@@ -34,10 +35,49 @@ class RegexDslGenerator extends AbstractGenerator {
 
     override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
         this.seedRegexsMap(resource);
-        fsa.generateFile('regex.txt', resource.allContents
+        var expressions = resource.allContents
                 .filter(RegularExpression)
                 .map[compile]
-                .join('\n'))
+                .join('\n');
+        var validates = resource.allContents
+                .filter(ValidateInput)
+                .map[compileValidateInput]
+                .join('\n');
+        
+        var result = '----- Regular Expressions -----\n'
+            + expressions;
+        
+        if (validates.length > 0) {
+            result += '\n\n----- Validate Inputs -----\n'
+                + validates;
+        }
+        
+        fsa.generateFile('regex.txt', result)
+    }
+    
+    private def compileValidateInput(ValidateInput validateInput) {
+        if (validateInput.inputs.length == 0) {
+            return '';
+        }
+        
+        var regex = this.regexs.get(validateInput.regex);
+        var result = '';
+        
+        for (input : validateInput.inputs) {
+            result += '\n  - '
+                + input + ': ';
+            
+            try {
+            	result += (input.toString().matches(regex) ? 'true' : 'false');
+            } catch (Exception exception) {
+            	result += '(ERROR) ' + exception.getMessage();
+            }
+        }
+        
+        return validateInput.name + ':'
+            + '\n- RegEx: ' + regex
+            + '\n- Inputs:'
+            + result;
     }
     
     private def seedRegexsMap(Resource resource) {
@@ -55,6 +95,10 @@ class RegexDslGenerator extends AbstractGenerator {
     }
     
     private def compile(RegularExpression regularExpression) {
+//    	if () {
+//    		
+//    	}
+    	
         var String regex = '';
         for (expression : regularExpression.struct.expressions) {
             regex += this.compileExpression(expression);
@@ -77,8 +121,8 @@ class RegexDslGenerator extends AbstractGenerator {
             return this.compileQuantifier(expression);
         } else if (expression instanceof Range) {
             return this.compileRange(expression);
-        } else if (expression instanceof Comment) {
-            return this.compileComment(expression);
+//        } else if (expression instanceof Comment) {
+//            return this.compileComment(expression);
         } else if (expression instanceof RawExpression) {
             var value = this.regexs.get(expression.value);
             if (value != null) {

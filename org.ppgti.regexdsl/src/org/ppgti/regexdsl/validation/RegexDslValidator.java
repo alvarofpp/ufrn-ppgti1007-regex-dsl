@@ -6,12 +6,19 @@ package org.ppgti.regexdsl.validation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 import org.eclipse.xtext.validation.Check;
+import org.ppgti.regexdsl.regexDsl.Anchor;
 import org.ppgti.regexdsl.regexDsl.AttributesQuantifier;
+import org.ppgti.regexdsl.regexDsl.Group;
 import org.ppgti.regexdsl.regexDsl.Quantifier;
 import org.ppgti.regexdsl.regexDsl.Range;
 import org.ppgti.regexdsl.regexDsl.RegexDslPackage;
+import org.ppgti.regexdsl.regexDsl.RegularExpression;
+import org.ppgti.regexdsl.regexDsl.RegularExpressions;
+import org.ppgti.regexdsl.regexDsl.Set;
+import org.ppgti.regexdsl.regexDsl.ValidateInput;
 
 /**
  * This class contains custom validation rules. 
@@ -19,6 +26,10 @@ import org.ppgti.regexdsl.regexDsl.RegexDslPackage;
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class RegexDslValidator extends AbstractRegexDslValidator {
+    public static final String UNIQUE_NAME = "uniqueName";
+    public static final String NOT_FOUND = "notFound";
+    public static final String STRUCT_EMPTY = "structEmpty";
+    
     // Range
     public static final String SAME_TYPE = "sameType";
     public static final String FIRST_VALUE_GREATER_THAN_SECOND = "firstValueGreaterThanSecond";
@@ -30,7 +41,84 @@ public class RegexDslValidator extends AbstractRegexDslValidator {
     public static final String SIZE_WITH_MIN_AND_MAX = "sizeWithMinAndMax";
     public static final String MIN_GREATER_THAN_MAX = "minGreaterThanMax";
     
+
+    @Check
+    public void checkQuantifier(ValidateInput validateInput) {
+        RegularExpressions superRegularExpressions = ((RegularExpressions) validateInput.eContainer());
+        boolean find = false;
+
+        for (Object other : superRegularExpressions.getRegexs()) {
+            if (other instanceof RegularExpression) {
+                RegularExpression otherRegEx = (RegularExpression) other;
+                
+                if (otherRegEx.getName().equals(validateInput.getRegex())) {
+                    find = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!find) {
+            error("RegEx not found",
+                    RegexDslPackage.Literals.VALIDATE_INPUT__REGEX,
+                    NOT_FOUND);
+        }
+    }
     
+    @Check
+    public void checkRegexNameIsUnique(RegularExpression regularExpression) {
+        RegularExpressions superRegularExpressions = ((RegularExpressions) regularExpression.eContainer());
+
+        for (Object other : superRegularExpressions.getRegexs()) {
+            if (other instanceof RegularExpression) {
+                RegularExpression otherRegEx = (RegularExpression) other;
+                
+                if ((regularExpression != otherRegEx)
+                        && regularExpression.getName().equals(otherRegEx.getName())) {
+                    error("RegEx names have to be unique",
+                            RegexDslPackage.Literals.REGULAR_EXPRESSION__NAME,
+                            UNIQUE_NAME);
+                    return;
+                }
+            }
+        }
+    }
+    
+    @Check
+    public void checkRegexStructIsEmpty(RegularExpression regularExpression) {
+        if (regularExpression.getStruct() == null) {
+            error("Must have other expressions inside the expression",
+                    RegexDslPackage.Literals.REGULAR_EXPRESSION__STRUCT,
+                    STRUCT_EMPTY);
+        }
+    }
+    
+    @Check
+    public void checkSetStructIsEmpty(Set set) {
+        if (set.getStruct() == null) {
+            error("Must have other expressions inside the expression",
+                    RegexDslPackage.Literals.SET__STRUCT,
+                    STRUCT_EMPTY);
+        }
+    }
+    
+    @Check
+    public void checkGroupStructIsEmpty(Group group) {
+        if (group.getStruct() == null) {
+            error("Must have other expressions inside the expression",
+                    RegexDslPackage.Literals.GROUP__STRUCT,
+                    STRUCT_EMPTY);
+        }
+    }
+    
+    @Check
+    public void checkAnchorStructIsEmpty(Anchor anchor) {
+        if (anchor.getStruct() == null) {
+            error("Must have other expressions inside the expression",
+                    RegexDslPackage.Literals.ANCHOR__STRUCT,
+                    STRUCT_EMPTY);
+        }
+    }
     
     @Check
     public void checkQuantifier(Quantifier quantifier) {

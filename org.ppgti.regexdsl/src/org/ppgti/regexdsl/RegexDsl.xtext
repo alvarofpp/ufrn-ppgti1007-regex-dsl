@@ -3,7 +3,15 @@ grammar org.ppgti.regexdsl.RegexDsl with org.eclipse.xtext.common.Terminals
 generate regexDsl "http://www.ppgti.org/regexdsl/RegexDsl"
 
 RegularExpressions:
-    regexs+=RegularExpression*
+    regexs+=(RegularExpression | ValidateInput)*
+;
+
+ValidateInput:
+    'validate' name=ID
+    '{'
+    'regex' '=' regex=ID
+    'inputs' '=' '[' inputs+=STRING (',' inputs+=STRING)* ']'
+	'}'
 ;
 
 RegularExpression:
@@ -19,7 +27,7 @@ Expression:
     Set |
     Range |
     Quantifier |
-    Comment |
+//    Comment |
     GroupBackreference |
     Anchor |
     RawExpression
