@@ -61,7 +61,7 @@ Set:
  * Quantifier
  */
 Quantifier:
-    'quantifier' '(' ((attributes+=AttributesQuantifier) (',' attributes+=AttributesQuantifier)*)? ')'
+    'quantifier' '(' (attributes+=AttributesQuantifier) (',' attributes+=AttributesQuantifier)* ')'
 ;
 
 AttributesQuantifier:
@@ -80,15 +80,7 @@ Range:
 ;
 
 ValidRange:
-    RangeChar | RangeDigit
-;
-
-RangeChar:
-    CHAR CHAR
-;
-
-RangeDigit:
-    (INT | DIGIT) (INT | DIGIT)
+    (DIGIT | CHAR) (DIGIT | CHAR)
 ;
 
 /*
