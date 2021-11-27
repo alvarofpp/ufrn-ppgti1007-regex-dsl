@@ -10,21 +10,53 @@ import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
-import org.ppgti.regexdsl.regexDsl.Model
+import org.ppgti.regexdsl.regexDsl.RegularExpressions
+import org.eclipse.xtext.xbase.testing.CompilationTestHelper
 
 @ExtendWith(InjectionExtension)
 @InjectWith(RegexDslInjectorProvider)
 class RegexDslParsingTest {
-	@Inject
-	ParseHelper<Model> parseHelper
-	
-	@Test
-	def void loadModel() {
-		val result = parseHelper.parse('''
-			Hello Xtext!
-		''')
-		Assertions.assertNotNull(result)
-		val errors = result.eResource.errors
-		Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
-	}
+    @Inject
+    ParseHelper<RegularExpressions> parseHelper
+    
+    @Inject extension CompilationTestHelper
+    
+    @Test
+    def void loadModel() {
+        val result = parseHelper.parse('''
+            regex test { "Hello World" }
+        ''')
+        Assertions.assertNotNull(result)
+        val errors = result.eResource.errors
+        Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
+    }
+    
+    @Test
+    def void setWithRange() {
+        '''
+        regex all_digits {
+            set {
+                range 0 9
+            }
+        }
+        '''.assertCompilesTo('''
+            all_digits: [0-9]''')
+    }
+    
+    @Test
+    def void reuseExpression() {
+        '''
+        regex digits {
+            range 0 9
+        }
+        
+        regex all_digits {
+            set {
+                digits
+            }
+        }
+        '''.assertCompilesTo('''
+            digits: 0-9
+            all_digits: [0-9]''')
+    }
 }
