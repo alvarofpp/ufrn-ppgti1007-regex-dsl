@@ -3,6 +3,15 @@
  */
 package org.ppgti.regexdsl.validation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import org.eclipse.xtext.validation.Check;
+import org.ppgti.regexdsl.regexDsl.AttributesQuantifier;
+import org.ppgti.regexdsl.regexDsl.Quantifier;
+import org.ppgti.regexdsl.regexDsl.Range;
+import org.ppgti.regexdsl.regexDsl.RegexDslPackage;
 
 /**
  * This class contains custom validation rules. 
@@ -10,16 +19,92 @@ package org.ppgti.regexdsl.validation;
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class RegexDslValidator extends AbstractRegexDslValidator {
-	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					RegexDslPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
-	
+    // Range
+    public static final String SAME_TYPE = "sameType";
+    public static final String FIRST_VALUE_GREATER_THAN_SECOND = "firstValueGreaterThanSecond";
+    public static final String FIRST_VALUE_EQUALS_TO_SECOND = "firstValueEqualsToSecond";
+    
+    // Quantifier
+    public static final String ATTRIBUTES_TYPE_INTEGER = "attributesTypeInteger";
+    public static final String ATTRIBUTES_TYPE_BOOLEAN = "attributesTypeBoolean";
+    public static final String SIZE_WITH_MIN_AND_MAX = "sizeWithMinAndMax";
+    public static final String MIN_GREATER_THAN_MAX = "minGreaterThanMax";
+    
+    
+    
+    @Check
+    public void checkQuantifier(Quantifier quantifier) {
+        HashMap attributes = new HashMap<String, String>();
+        ArrayList<String> keysInteger = new ArrayList<>(
+                Arrays.asList("size", "max", "min")
+            );
+        
+        for (AttributesQuantifier attribute : quantifier.getAttributes()) {
+            String key = attribute.getKey();
+            String value = attribute.getValue();
+
+            if (keysInteger.contains(key) && !value.matches("-?\\d+")) {
+                error("The value of '" + key + "' must be a integer, was given " + value,
+                        RegexDslPackage.Literals.QUANTIFIER__ATTRIBUTES,
+                        ATTRIBUTES_TYPE_INTEGER);
+                return;
+            } else if (key.equals("without_maximum") && !value.matches("(true)|(false)")) {
+                error("The value of 'without_maximum' must be a boolean, was given " + value,
+                        RegexDslPackage.Literals.QUANTIFIER__ATTRIBUTES,
+                        ATTRIBUTES_TYPE_BOOLEAN);
+                return;
+            }
+            
+            attributes.put(key, value);
+        }
+        
+        if (attributes.containsKey("size")
+                && (attributes.containsKey("min") || attributes.containsKey("max"))) {
+            error("You can use 'size' or 'min' and 'max', but not these attributes together",
+                    RegexDslPackage.Literals.QUANTIFIER__ATTRIBUTES,
+                    SIZE_WITH_MIN_AND_MAX);
+            return;
+        }
+        if (attributes.containsKey("min") && attributes.containsKey("max")) {
+            int min = Integer.parseInt(attributes.get("min").toString());
+            int max = Integer.parseInt(attributes.get("max").toString());
+            if (min > max) {
+                error("Minimum value must be less than the maximum value",
+                        RegexDslPackage.Literals.QUANTIFIER__ATTRIBUTES,
+                        MIN_GREATER_THAN_MAX);
+                return;
+            }
+        }
+    }
+    
+    @Check
+    public void checkRange(Range range) {
+        String[] values = range.getValue().split(" ");
+        Boolean digits = Character.isDigit(values[0].charAt(0))
+                && Character.isDigit(values[1].charAt(0));
+        Boolean letters = Character.isLetter(values[0].charAt(0))
+                && Character.isLetter(values[1].charAt(0));
+
+        if (!(digits || letters)) {
+            error("Values must be of the same type",
+                    RegexDslPackage.Literals.RANGE__VALUE,
+                    SAME_TYPE);
+            return;
+        }
+        
+        if (digits) {
+            int first = values[0].charAt(0);
+            int second = values[1].charAt(0);
+            
+            if (first > second) {
+                warning("Recommend that the first value be less than the second",
+                        RegexDslPackage.Literals.RANGE__VALUE,
+                        FIRST_VALUE_GREATER_THAN_SECOND);
+            } else if (first == second) {
+                warning("Recommend that the first value be less than the second",
+                        RegexDslPackage.Literals.RANGE__VALUE,
+                        FIRST_VALUE_EQUALS_TO_SECOND);
+            }
+        }
+    }
 }
